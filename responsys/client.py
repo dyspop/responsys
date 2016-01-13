@@ -439,13 +439,46 @@ class InteractClient(object):
     # LaunchCampaign
     # MergeTriggerEmail
     # ScheduleCampaignLaunch
-    # TriggerCampaignMessage
     def trigger_custom_event(self, custom_event, recipient_data=None):
         custom_event = custom_event.get_soap_object(self.client)
         recipient_data = [rdata.get_soap_object(self.client) for rdata in recipient_data]
         results = self.call('triggerCustomEvent', custom_event, recipient_data)
         return [TriggerResult(result) for result in results]
 
+    def trigger_campaign_message(self, campaign, recipient_data=None):
+        """ Responsys.triggerCampaignMessage call
+
+        Accepts:
+            InteractObject campaign
+            list RecipientData recipient_data
+
+        Returns a list of TriggerResult
+
+        Example:
+        >>> campaign = types.InteractObject(folder_name='Something',
+                                            object_name='Campaign name')
+        >>> customer_list = rt.InteractObject(
+              folder_name='Something', object_name='list_name')
+        >>> recipient = rt.Recipient(customer_list, customer_id='some id')
+        >>> recipient_data = rt.RecipientData(recipient, optional_data=[])
+
+        # optional_data is a list of OptionalData items, to encode a nested
+        # dict of items you must json-encode the value side of the name/value
+        # pair in OptionalData and eval the value in the Responsys template.
+        # For a batch of customers, make the recipient_data list longer (max
+        # 200)
+        >>> results = client.trigger_campaign_message(
+              campaign, [recipient_data])
+        [(TriggerResult){
+            recipientId = 273337342
+            success = True
+            errorMessage = None
+         }]
+        """
+        campaign = campaign.get_soap_object(self.client)
+        recipient_data = [rdata.get_soap_object(self.client) for rdata in recipient_data]
+        results = self.call('triggerCampaignMessage', campaign, recipient_data)
+        return [TriggerResult(result) for result in results]
 
     # TODO: Implement
     #
